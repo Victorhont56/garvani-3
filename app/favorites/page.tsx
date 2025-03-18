@@ -1,4 +1,4 @@
-import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
+import { auth } from "@clerk/nextjs";
 import prisma from "../lib/db";
 import { redirect } from "next/navigation";
 import { NoItems } from "../components/NoItem";
@@ -29,18 +29,20 @@ async function getData(userId: string) {
 }
 
 export default async function FavoriteRoute() {
-  const { getUser } = getKindeServerSession();
-  const user = await getUser();
-  if (!user) return redirect("/");
-  const data = await getData(user.id);
+  // Use Clerk's auth instead of Kinde's getKindeServerSession
+  const { userId } = auth();
+
+  if (!userId) return redirect("/");
+
+  const data = await getData(userId);
 
   return (
-    <section className="container mx-atuo px-5 lg:px-10 mt-10">
+    <section className="container mx-auto px-5 lg:px-10 mt-10">
       <h2 className="text-3xl font-semibold tracking-tight">Your Favorites</h2>
 
       {data.length === 0 ? (
         <NoItems
-          title="Hey you dont have any favorites"
+          title="Hey, you don't have any favorites"
           description="Please add favorites to see them right here..."
         />
       ) : (
@@ -54,11 +56,9 @@ export default async function FavoriteRoute() {
               homeId={item.Home?.id as string}
               imagePath={item.Home?.photo as string}
               price={item.Home?.price as number}
-              userId={user.id}
-              favoriteId={item.Home?.Favorite[0].id as string}
-              isInFavoriteList={
-                (item.Home?.Favorite.length as number) > 0 ? true : false
-              }
+              userId={userId}
+              favoriteId={item.Home?.Favorite[0]?.id as string}
+              isInFavoriteList={!!item.Home?.Favorite.length}
             />
           ))}
         </div>

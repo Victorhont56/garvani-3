@@ -7,21 +7,19 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MenuIcon } from "lucide-react";
-import {
-  RegisterLink,
-  LoginLink,
-  LogoutLink,
-} from "@kinde-oss/kinde-auth-nextjs/components";
-import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
+import { Button } from "@/components/ui/button";
+import { SignOutButton, UserButton, useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import { createAirbnbHome } from "../actions";
+import { auth } from "@clerk/nextjs";
+
 
 export async function UserNav() {
-  const { getUser } = getKindeServerSession();
-  const user = await getUser();
+  // Use Clerk's getAuth instead of Kinde's getKindeServerSession
+  const { userId } = auth();
 
   const createHomewithId = createAirbnbHome.bind(null, {
-    userId: user?.id as string,
+    userId: userId as string,
   });
 
   return (
@@ -30,18 +28,12 @@ export async function UserNav() {
         <div className="rounded-full border px-2 py-2 lg:px-4 lg:py-2 flex items-center gap-x-3">
           <MenuIcon className="w-6 h-6 lg:w-5 lg:h-5" />
 
-          <img
-            src={
-              user?.picture ??
-              "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg"
-            }
-            alt="Image of the user"
-            className="rounded-full h-8 w-8 hidden lg:block"
-          />
+          {/* Use Clerk's UserButton for profile picture */}
+          <UserButton />
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[200px]">
-        {user ? (
+        {userId ? (
           <>
             <DropdownMenuItem>
               <form action={createHomewithId} className="w-full">
@@ -67,16 +59,17 @@ export async function UserNav() {
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <LogoutLink className="w-full">Logout</LogoutLink>
+              <SignOutButton>
+                <Button variant="outline">Logout</Button>
+              </SignOutButton>
             </DropdownMenuItem>
           </>
         ) : (
           <>
             <DropdownMenuItem>
-              <RegisterLink className="w-full">Register</RegisterLink>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <LoginLink className="w-full">Login</LoginLink>
+              <Link href="/sign-in">
+                <Button variant="outline">Login</Button>
+              </Link>
             </DropdownMenuItem>
           </>
         )}

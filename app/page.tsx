@@ -1,12 +1,15 @@
-import { Suspense, use } from "react";
+'use client'
 
+import { Suspense } from "react";
 import { MapFilterItems } from "./components/MapFilterItems";
 import prisma from "./lib/db";
 import { SkeltonCard } from "./components/SkeletonCard";
 import { NoItems } from "./components/NoItem";
-import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { ListingCard } from "./components/ListingCard";
 import { unstable_noStore as noStore } from "next/cache";
+import { useAuth } from "@clerk/nextjs";
+import { useState, useEffect } from "react";
+
 
 async function getData({
   searchParams,
@@ -83,15 +86,23 @@ async function ShowItems({
     bathroom?: string;
   };
 }) {
-  const { getUser } = getKindeServerSession();
-  const user = await getUser();
-  const data = await getData({ searchParams: searchParams, userId: user?.id });
-
+  const [data, setData] = useState<any[]>([]);
+  const { userId } = useAuth(); // ✅ Get client-side user ID directly
+  const safeUserId = userId ?? undefined;
+  useEffect(() => {
+    if (safeUserId !== undefined) {
+      const fetchData = async () => {
+        const data = await getData({ searchParams, userId: safeUserId });
+        setData(data);
+      };
+      fetchData();
+    }
+  }, [searchParams, safeUserId]);
   return (
     <>
       {data.length === 0 ? (
         <NoItems
-          description="Please check a other category or create your own listing!"
+          description="Please check another category or create your own listing!"
           title="Sorry no listings found for this category..."
         />
       ) : (
@@ -103,9 +114,9 @@ async function ShowItems({
               imagePath={item.photo as string}
               location={item.country as string}
               price={item.price as number}
-              userId={user?.id}
+              userId={userId}
               favoriteId={item.Favorite[0]?.id}
-              isInFavoriteList={item.Favorite.length > 0 ? true : false}
+              isInFavoriteList={item.Favorite.length > 0}
               homeId={item.id}
               pathName="/"
             />
@@ -115,19 +126,12 @@ async function ShowItems({
     </>
   );
 }
-
 function SkeletonLoading() {
   return (
     <div className="grid lg:grid-cols-4 sm:grid-cols-2 md:grid-cols-3 gap-8 mt-8">
-      <SkeltonCard />
-      <SkeltonCard />
-      <SkeltonCard />
-      <SkeltonCard />
-      <SkeltonCard />
-      <SkeltonCard />
-      <SkeltonCard />
-      <SkeltonCard />
-      <SkeltonCard />
+      {Array.from({ length: 9 }).map((_, index) => (
+        <SkeltonCard key={index} />
+      ))}
     </div>
   );
 }

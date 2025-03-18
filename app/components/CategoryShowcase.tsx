@@ -5,7 +5,7 @@ import { categoryItems } from "./MapFilterItems";
 import { useSearchParams } from "next/navigation";
 
 interface CategoryShowcaseProps {
-  icon: IconType;
+  icon?: IconType;
   label: string;
 }
 
@@ -23,7 +23,7 @@ export const CategoryShowcase: React.FC<CategoryShowcaseProps> = ({
 
   return (
     <div className="flex items-center">
-      <Icon size={28} />
+      {Icon && <Icon size={28} />}
       <div className="flex flex-col ml-4">
         <h3 className="font-medium">{category.label}</h3>
         <p className="text-sm text-muted-foreground">{category.description}</p>

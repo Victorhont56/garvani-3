@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import { createReservation } from "@/app/actions";
-import { CaegoryShowcase } from "@/app/components/CategoryShowcase";
+import { CategoryShowcase } from "@/app/components/CategoryShowcase";
 import { HomeMap } from "@/app/components/HomeMap";
 import { SelectCalender } from "@/app/components/SelectCalender";
 import { ReservationSubmitButton } from "@/app/components/SubmitButtons";
@@ -9,7 +9,7 @@ import prisma from "@/app/lib/db";
 import { useCountries } from "@/app/lib/getCountries";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
+import { auth } from "@clerk/nextjs";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -57,8 +57,10 @@ export default async function HomeRoute({
   const data = await getData(params.id);
   const { getCountryByValue } = useCountries();
   const country = getCountryByValue(data?.country as string);
-  const { getUser } = getKindeServerSession();
-  const user = await getUser();
+
+  // Use Clerk's auth to get user info
+  const { userId } = auth();
+
   return (
     <div className="w-[75%] mx-auto mt-10 mb-12">
       <h1 className="font-medium text-2xl mb-5">{data?.title}</h1>
@@ -91,14 +93,16 @@ export default async function HomeRoute({
               className="w-11 h-11 rounded-full"
             />
             <div className="flex flex-col ml-4">
-              <h3 className="font-medium">Hosted by {data?.User?.firstName}</h3>
+              <h3 className="font-medium">
+                Hosted by {data?.User?.firstName}
+              </h3>
               <p className="text-sm text-muted-foreground">Host since 2015</p>
             </div>
           </div>
 
           <Separator className="my-7" />
 
-          <CaegoryShowcase categoryName={data?.categoryName as string} />
+          <CategoryShowcase label={data?.categoryName as string} />
 
           <Separator className="my-7" />
 
@@ -109,17 +113,18 @@ export default async function HomeRoute({
           <HomeMap locationValue={country?.value as string} />
         </div>
 
+        {/* Reservation Form */}
         <form action={createReservation}>
           <input type="hidden" name="homeId" value={params.id} />
-          <input type="hidden" name="userId" value={user?.id} />
+          <input type="hidden" name="userId" value={userId ?? ""} />
 
           <SelectCalender reservation={data?.Reservation} />
 
-          {user?.id ? (
+          {userId ? (
             <ReservationSubmitButton />
           ) : (
             <Button className="w-full" asChild>
-              <Link href="/api/auth/login">Make a Reservation</Link>
+              <Link href="/sign-in">Make a Reservation</Link>
             </Button>
           )}
         </form>

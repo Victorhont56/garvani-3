@@ -9,12 +9,13 @@ interface iAppProps {
   description: string;
   location: string;
   price: number;
-  userId: string | undefined;
+  userId: string | null | undefined;
   isInFavoriteList: boolean;
   favoriteId: string;
   homeId: string;
   pathName: string;
 }
+
 
 export function ListingCard({
   description,
