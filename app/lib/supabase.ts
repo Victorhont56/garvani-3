@@ -1,7 +1,11 @@
-import { createClient } from "@supabase/supabase-js";
+// app/libs/supabaseClient.js
+import { createClient } from '@supabase/supabase-js';
 
-// Create a single supabase client for interacting with your database
-export const supabase = createClient(
-  process.env.SUPABASE_URL as string,
-  process.env.SUPABASE_ANON_KEY as string
-);
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+  throw new Error('Supabase URL and API key are required');
+}
+
+export const supabase = createClient(supabaseUrl, supabaseKey);
