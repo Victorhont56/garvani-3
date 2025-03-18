@@ -31,6 +31,6 @@ export async function GET() {
       },
     });
   }
-
+  console.log("Redirecting to homepage...");
   return NextResponse.redirect("http://localhost:3000");
 }
