@@ -1,57 +1,12 @@
 'use client'
-
 import { Suspense } from "react";
 import { MapFilterItems } from "./components/MapFilterItems";
-import prisma from "./lib/db";
 import { SkeltonCard } from "./components/SkeletonCard";
 import { NoItems } from "./components/NoItem";
 import { ListingCard } from "./components/ListingCard";
 import { unstable_noStore as noStore } from "next/cache";
 import { useAuth } from "@clerk/nextjs";
 import { useState, useEffect } from "react";
-
-
-async function getData({
-  searchParams,
-  userId,
-}: {
-  userId: string | undefined;
-  searchParams?: {
-    filter?: string;
-    country?: string;
-    guest?: string;
-    room?: string;
-    bathroom?: string;
-  };
-}) {
-  noStore();
-  const data = await prisma.home.findMany({
-    where: {
-      addedCategory: true,
-      addedLoaction: true,
-      addedDescription: true,
-      categoryName: searchParams?.filter ?? undefined,
-      country: searchParams?.country ?? undefined,
-      guests: searchParams?.guest ?? undefined,
-      bedrooms: searchParams?.room ?? undefined,
-      bathrooms: searchParams?.bathroom ?? undefined,
-    },
-    select: {
-      photo: true,
-      id: true,
-      price: true,
-      description: true,
-      country: true,
-      Favorite: {
-        where: {
-          userId: userId ?? undefined,
-        },
-      },
-    },
-  });
-
-  return data;
-}
 
 export default function Home({
   searchParams,
@@ -66,7 +21,7 @@ export default function Home({
 }) {
   return (
     <div className="container mx-auto px-5 lg:px-10">
-      <MapFilterItems />
+   
 
       <Suspense key={searchParams?.filter} fallback={<SkeletonLoading />}>
         <ShowItems searchParams={searchParams} />
@@ -89,15 +44,22 @@ async function ShowItems({
   const [data, setData] = useState<any[]>([]);
   const { userId } = useAuth(); // ✅ Get client-side user ID directly
   const safeUserId = userId ?? undefined;
+
   useEffect(() => {
     if (safeUserId !== undefined) {
       const fetchData = async () => {
-        const data = await getData({ searchParams, userId: safeUserId });
+        const params = new URLSearchParams({
+          ...searchParams,
+          userId: safeUserId,
+        }).toString();
+        const response = await fetch(`/api/getData?${params}`);
+        const data = await response.json();
         setData(data);
       };
       fetchData();
     }
   }, [searchParams, safeUserId]);
+
   return (
     <>
       {data.length === 0 ? (
@@ -126,6 +88,7 @@ async function ShowItems({
     </>
   );
 }
+
 function SkeletonLoading() {
   return (
     <div className="grid lg:grid-cols-4 sm:grid-cols-2 md:grid-cols-3 gap-8 mt-8">
