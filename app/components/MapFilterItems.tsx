@@ -61,13 +61,13 @@ export function MapFilterItems() {
   };
 
   return (
-    <div className="relative flex items-center">
+    <div className="relative flex mb-3 font-bold items-center">
       {/* Left Arrow */}
       <button
         onClick={scrollLeft}
-        className="absolute left-0 z-10 p-2 bg-white rounded-full shadow-md hover:bg-gray-100"
+        className="absolute left-0 text-black  z-10 p-2 mx-4 bg-white rounded-full shadow-md hover:bg-gray-100"
       >
-        <FaChevronLeft size={20} />
+        <FaChevronLeft size={12} />
       </button>
 
       {/* Category Container */}
@@ -83,7 +83,7 @@ export function MapFilterItems() {
               search === label
                 ? "border-b-2 border-black pb-2 flex-shrink-0"
                 : "opacity-70 flex-shrink-0",
-              "flex flex-col gap-y-3 items-center"
+              "flex flex-col gap-y-3 hover:text-primary items-center"
             )}
           >
             <div className="relative w-6 h-6">
@@ -97,9 +97,9 @@ export function MapFilterItems() {
       {/* Right Arrow */}
       <button
         onClick={scrollRight}
-        className="absolute right-0 z-10 p-2 bg-white rounded-full shadow-md hover:bg-gray-100"
+        className="absolute right-0 text-black z-10 p-2 mx-4 bg-white rounded-full shadow-md hover:bg-gray-100"
       >
-        <FaChevronRight size={20} />
+        <FaChevronRight size={12} />
       </button>
     </div>
   );

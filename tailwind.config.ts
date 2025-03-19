@@ -24,12 +24,16 @@ const config = {
   			ring: 'hsl(var(--ring))',
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
+			hover: {
+				DEFAULT: '#119812',
+				foreground: 'hsl(var(--secondary-foreground))'
+			},
   			primary: {
   				DEFAULT: '#18D619',
   				foreground: 'hsl(var(--primary-foreground))'
   			},
   			secondary: {
-  				DEFAULT: 'hsl(var(--secondary))',
+  				DEFAULT: '#1F2937',
   				foreground: 'hsl(var(--secondary-foreground))'
   			},
   			destructive: {

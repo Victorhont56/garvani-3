@@ -28,7 +28,11 @@ import { CreationSubmit } from "./SubmitButtons";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Counter } from "./Counter";
 
-export function SearchModalCompnent() {
+interface Props {
+  isScrolled: boolean;
+}
+
+export function SearchModalCompnent({ isScrolled }: Props) {
   const [step, setStep] = useState(1);
   const [locationValue, setLocationValue] = useState("");
   const { getAllCountries } = useCountries();
@@ -44,103 +48,170 @@ export function SearchModalCompnent() {
       return <CreationSubmit />;
     }
   }
+
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <div className="rounded-full py-2 px-5 border flex items-center cursor-pointer">
-          <div className="flex h-full divide-x font-medium">
-            <p className="px-4">Anywhere</p>
-            <p className="px-4">Any Week</p>
-            <p className="px-4">Add Guests</p>
-          </div>
+    <div className="rounded-full py-2 px-5 border flex items-center cursor-pointer">
+      {/* Menu Links - Hidden on Mobile, Visible on Medium and Large */}
+      <div className="hidden sm:flex gap-3 font-medium transition-colors duration-300">
+        {["Home", "Discover", "About", "Contact", "Settings"].map((label, idx) => (
+          <a
+            key={idx}
+            href="#"
+            className={`${
+              isScrolled ? "text-black hover:text-gray-600" : "text-white hover:text-gray-400"
+            }`}
+          >
+            {label}
+          </a>
+        ))}
+      </div>
 
-          <Search className="bg-primary text-white p-1 h-8 w-8 rounded-full" />
-        </div>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <form className="gap-4 flex flex-col">
-          <input type="hidden" name="country" value={locationValue} />
-          {step === 1 ? (
-            <>
-              <DialogHeader>
-                <DialogTitle>Select a Country</DialogTitle>
-                <DialogDescription>
-                  Pleae Choose a Country, so that what you want
-                </DialogDescription>
-              </DialogHeader>
+      {/* Search Icon - Visible Only on Medium and Larger */}
+      <div className="hidden sm:flex ml-14">
+        <Dialog>
+          <DialogTrigger asChild>
+            <Search
+              className={`bg-primary ${
+                isScrolled ? "text-black" : "text-white"
+              } p-1 h-8 hover:bg-hover hover:text-gray-400 w-8 rounded-full`}
+            />
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <form className="gap-4 flex flex-col">
+              <input type="hidden" name="country" value={locationValue} />
+              {step === 1 ? (
+                <>
+                  <DialogHeader>
+                    <DialogTitle>Select a Country</DialogTitle>
+                    <DialogDescription>Please choose a country.</DialogDescription>
+                  </DialogHeader>
 
-              <Select
-                required
-                onValueChange={(value) => setLocationValue(value)}
-                value={locationValue}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select a Country" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectLabel>Countries</SelectLabel>
-                    {getAllCountries().map((item) => (
-                      <SelectItem key={item.value} value={item.value}>
-                        {item.flag} {item.label} / {item.region}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-              <HomeMap locationValue={locationValue} />
-            </>
-          ) : (
-            <>
-              <DialogHeader>
-                <DialogTitle>Select all the info you need</DialogTitle>
-                <DialogDescription>
-                  Pleae Choose a Country, so that what you want
-                </DialogDescription>
-              </DialogHeader>
+                  <Select
+                    required
+                    onValueChange={(value) => setLocationValue(value)}
+                    value={locationValue}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select a Country" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel>Countries</SelectLabel>
+                        {getAllCountries().map((item) => (
+                          <SelectItem key={item.value} value={item.value}>
+                            {item.flag} {item.label} / {item.region}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                  <HomeMap locationValue={locationValue} />
+                </>
+              ) : (
+                <>
+                  <DialogHeader>
+                    <DialogTitle>Select all the info you need</DialogTitle>
+                    <DialogDescription>Provide more details about your preferences.</DialogDescription>
+                  </DialogHeader>
 
-              <Card>
-                <CardHeader className="flex flex-col gap-y-5">
-                  <div className="flex items-center justify-between">
-                    <div className="flex flex-col">
-                      <h3 className="underline font-medium">Guests</h3>
-                      <p className="text-muted-foreground text-sm">
-                        How many guests do you want?
-                      </p>
-                    </div>
+                  <Card>
+                    <CardHeader className="flex flex-col gap-y-5">
+                      {["Guests", "Rooms", "Bathrooms"].map((label, idx) => (
+                        <div key={idx} className="flex items-center justify-between">
+                          <div className="flex flex-col">
+                            <h3 className="underline font-medium">{label}</h3>
+                            <p className="text-muted-foreground text-sm">
+                              How many {label.toLowerCase()} do you have?
+                            </p>
+                          </div>
+                          <Counter name={label.toLowerCase()} />
+                        </div>
+                      ))}
+                    </CardHeader>
+                  </Card>
+                </>
+              )}
+              <DialogFooter>
+                <SubmitButtonLocal />
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
 
-                    <Counter name="guest" />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex flex-col">
-                      <h3 className="underline font-medium">Rooms</h3>
-                      <p className="text-muted-foreground text-sm">
-                        How many rooms do you have?
-                      </p>
-                    </div>
+      {/* Search Icon - Visible Only on Mobile */}
+      <div className="flex sm:hidden ml-2">
+        <Dialog>
+          <DialogTrigger asChild>
+            <Search
+              className={`bg-primary ${
+                isScrolled ? "text-black" : "text-white"
+              } p-1 h-8 hover:bg-hover hover:text-gray-400 w-8 rounded-full`}
+            />
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            {/* Dialog content same as above */}
+            <form className="gap-4 flex flex-col">
+              <input type="hidden" name="country" value={locationValue} />
+              {step === 1 ? (
+                <>
+                  <DialogHeader>
+                    <DialogTitle>Select a Country</DialogTitle>
+                    <DialogDescription>Please choose a country.</DialogDescription>
+                  </DialogHeader>
 
-                    <Counter name="room" />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex flex-col">
-                      <h3 className="underline font-medium">Bathrooms</h3>
-                      <p className="text-muted-foreground text-sm">
-                        How many bathrooms do you have?
-                      </p>
-                    </div>
+                  <Select
+                    required
+                    onValueChange={(value) => setLocationValue(value)}
+                    value={locationValue}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select a Country" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel>Countries</SelectLabel>
+                        {getAllCountries().map((item) => (
+                          <SelectItem key={item.value} value={item.value}>
+                            {item.flag} {item.label} / {item.region}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                  <HomeMap locationValue={locationValue} />
+                </>
+              ) : (
+                <>
+                  <DialogHeader>
+                    <DialogTitle>Select all the info you need</DialogTitle>
+                    <DialogDescription>Provide more details about your preferences.</DialogDescription>
+                  </DialogHeader>
 
-                    <Counter name="bathroom" />
-                  </div>
-                </CardHeader>
-              </Card>
-            </>
-          )}
-
-          <DialogFooter>
-            <SubmitButtonLocal />
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+                  <Card>
+                    <CardHeader className="flex flex-col gap-y-5">
+                      {["Guests", "Rooms", "Bathrooms"].map((label, idx) => (
+                        <div key={idx} className="flex items-center justify-between">
+                          <div className="flex flex-col">
+                            <h3 className="underline font-medium">{label}</h3>
+                            <p className="text-muted-foreground text-sm">
+                              How many {label.toLowerCase()} do you have?
+                            </p>
+                          </div>
+                          <Counter name={label.toLowerCase()} />
+                        </div>
+                      ))}
+                    </CardHeader>
+                  </Card>
+                </>
+              )}
+              <DialogFooter>
+                <SubmitButtonLocal />
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </div>
   );
 }

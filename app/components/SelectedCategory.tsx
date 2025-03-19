@@ -30,7 +30,6 @@ export function SelctetCategory() {
                 width={32}
                 className="w-8 h-8"
               />
-
               <h3 className="font-medium">{item.title}</h3>
             </CardHeader>
           </Card>
