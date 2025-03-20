@@ -1,24 +1,53 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import prisma from '@/app/lib/db';
+import { getAuth } from '@clerk/nextjs/server';
+import { clerkClient } from '@clerk/clerk-sdk-node';
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
+export async function GET(request: NextRequest) {
+  const { userId } = getAuth(request);  // ✅ Now works without .from()
+  
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  
+  if (userId) {
+    const user = await clerkClient.users.getUser(userId);
+   
+    await prisma.user.upsert({
+      where: { id: user.id },
+      update: {},
+      create: {
+        id: user.id,
+        email: user.emailAddresses[0].emailAddress,
+        firstName: user.firstName || "",
+        lastName: user.lastName || "",
+        profileImage: user.imageUrl,
+      },
+    });
+  }
+
+  const { searchParams } = request.nextUrl;  // ✅ Use request.nextUrl instead of new URL()
   const filter = searchParams.get('filter') ?? undefined;
-  const country = searchParams.get('country') ?? undefined;
-  const guest = searchParams.get('guest') ?? undefined;
-  const room = searchParams.get('room') ?? undefined;
+  const mode = searchParams.get('mode') ?? undefined;
+  const type = searchParams.get('type') ?? undefined;
+  const state = searchParams.get('state') ?? undefined;
+  const lga = searchParams.get('lga') ?? undefined;
+  const livingrooms = searchParams.get('room') ?? undefined;
+  const bedrooms = searchParams.get('bedroom') ?? undefined;
   const bathroom = searchParams.get('bathroom') ?? undefined;
-  const userId = searchParams.get('userId') ?? undefined;
+  const queryUserId = searchParams.get('userId') ?? undefined;
 
   const data = await prisma.home.findMany({
     where: {
       addedCategory: true,
-      addedLoaction: true,
       addedDescription: true,
       categoryName: filter,
-      country: country,
-      guests: guest,
-      bedrooms: room,
+      mode: mode,
+      type: type,
+      state: state,
+      lga: lga,
+      livingrooms: livingrooms,
+      bedrooms: bedrooms,
       bathrooms: bathroom,
     },
     select: {
@@ -26,10 +55,9 @@ export async function GET(request: Request) {
       id: true,
       price: true,
       description: true,
-      country: true,
       Favorite: {
         where: {
-          userId: userId ?? undefined,
+          userId: queryUserId,
         },
       },
     },

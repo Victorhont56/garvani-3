@@ -17,11 +17,7 @@ import { CreationSubmit } from "./SubmitButtons";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Counter } from "./Counter";
 
-interface Props {
-  isScrolled?: boolean;
-}
-
-export function SearchModalComponent({ isScrolled }: Props) {
+export function SearchModalComponentTwo() {
   const [step, setStep] = useState(1);
 
   function SubmitButtonLocal() {
@@ -45,9 +41,7 @@ export function SearchModalComponent({ isScrolled }: Props) {
           <a
             key={idx}
             href="#"
-            className={`${
-              isScrolled ? "text-black hover:text-gray-600" : "text-white hover:text-gray-400"
-            }`}
+            className="text-black hover:text-gray-600" // Always black text
           >
             {label}
           </a>
@@ -55,13 +49,11 @@ export function SearchModalComponent({ isScrolled }: Props) {
       </div>
 
       {/* Search Icon - Visible Only on Medium and Larger */}
-      <div className=" sm:flex ml-14">
+      <div className="sm:flex ml-14">
         <Dialog>
           <DialogTrigger asChild>
             <Search
-              className={`bg-primary ${
-                isScrolled ? "text-black" : "text-white"
-              } p-1 h-8 hover:bg-hover hover:text-gray-400 w-8 rounded-full`}
+              className="bg-primary text-white p-1 h-8 hover:bg-hover hover:text-white w-8 rounded-full" // Always black text
             />
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">

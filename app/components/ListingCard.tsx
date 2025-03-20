@@ -1,13 +1,15 @@
 import Image from "next/image";
 import Link from "next/link";
-import { useCountries } from "../lib/getCountries";
 import { AddToFavoriteButton, DeleteFromFavoriteButton } from "./SubmitButtons";
 import { DeleteFromFavorite, addToFavorite } from "../actions";
 
 interface iAppProps {
   imagePath: string;
   description: string;
-  location: string;
+  state: string;
+  lga: string;
+  mode: string;
+  type: string;
   price: number;
   userId: string | null | undefined;
   isInFavoriteList: boolean;
@@ -20,7 +22,10 @@ interface iAppProps {
 export function ListingCard({
   description,
   imagePath,
-  location,
+  state,
+  lga,
+  mode,
+  type,
   price,
   userId,
   favoriteId,
@@ -28,8 +33,6 @@ export function ListingCard({
   isInFavoriteList,
   pathName,
 }: iAppProps) {
-  const { getCountryByValue } = useCountries();
-  const country = getCountryByValue(location);
 
   return (
     <div className="flex flex-col">
@@ -64,7 +67,16 @@ export function ListingCard({
 
       <Link href={`/home/${homeId}`} className="mt-2">
         <h3 className="font-medium text-base">
-          {country?.flag} {country?.label} / {country?.region}
+          {mode}
+        </h3>
+        <h3 className="font-medium text-base">
+          {type}
+        </h3>
+        <h3 className="font-medium text-base">
+          {state}
+        </h3>
+        <h3 className="font-medium text-base">
+          {lga}
         </h3>
         <p className="text-muted-foreground text-sm line-clamp-2">
           {description}

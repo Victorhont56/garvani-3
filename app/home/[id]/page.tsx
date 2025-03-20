@@ -2,18 +2,18 @@
 
 import { createReservation } from "@/app/actions";
 import { CategoryShowcase } from "@/app/components/CategoryShowcase";
-import { HomeMap } from "@/app/components/HomeMap";
 import { SelectCalender } from "@/app/components/SelectCalender";
 import { ReservationSubmitButton } from "@/app/components/SubmitButtons";
 import prisma from "@/app/lib/db";
-import { useCountries } from "@/app/lib/getCountries";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { auth } from "@clerk/nextjs";
-
 import Image from "next/image";
 import Link from "next/link";
 import { unstable_noStore as noStore } from "next/cache";
+
+
+
 
 async function getData(homeid: string) {
   noStore();
@@ -24,13 +24,15 @@ async function getData(homeid: string) {
     select: {
       photo: true,
       description: true,
-      guests: true,
+      state: true,
+      lga: true,
+      mode: true,
+      type: true,
       bedrooms: true,
       bathrooms: true,
       title: true,
       categoryName: true,
       price: true,
-      country: true,
       Reservation: {
         where: {
           homeId: homeid,
@@ -55,9 +57,6 @@ export default async function HomeRoute({
   params: { id: string };
 }) {
   const data = await getData(params.id);
-  const { getCountryByValue } = useCountries();
-  const country = getCountryByValue(data?.country as string);
-
   // Use Clerk's auth to get user info
   const { userId } = auth();
 
@@ -76,10 +75,19 @@ export default async function HomeRoute({
       <div className="flex justify-between gap-x-24 mt-8">
         <div className="w-2/3">
           <h3 className="text-xl font-medium">
-            {country?.flag} {country?.label} / {country?.region}
+            For {data?.mode}
+          </h3>
+          <h3 className="text-xl font-medium">
+            this is a {data?.type}
+          </h3>
+          <h3 className="text-xl font-medium">
+            {data?.state}
+          </h3>
+          <h3 className="text-xl font-medium">
+            {data?.lga}
           </h3>
           <div className="flex gap-x-2 text-muted-foreground">
-            <p>{data?.guests} Guests</p> * <p>{data?.bedrooms} Bedrooms</p> *{" "}
+           <p>{data?.bedrooms} Bedrooms</p> *{" "}
             {data?.bathrooms} Bathrooms
           </div>
 
@@ -109,8 +117,6 @@ export default async function HomeRoute({
           <p className="text-muted-foreground">{data?.description}</p>
 
           <Separator className="my-7" />
-
-          <HomeMap locationValue={country?.value as string} />
         </div>
 
         {/* Reservation Form */}

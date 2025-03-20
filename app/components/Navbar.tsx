@@ -4,7 +4,7 @@ import Link from "next/link";
 import DesktopLogo from "../../public/airbnb-desktop.png";
 import MobileLogo from "../../public/airbnb-mobile.webp";
 import { UserNav } from "./UserNav";
-import { SearchModalCompnent } from "./SearchComponent";
+import { SearchModalComponent } from "./SearchComponent";
 import { MapFilterItems } from "./MapFilterItems";
 import { useEffect, useState } from "react";
 
@@ -46,7 +46,7 @@ export function Navbar() {
           />
         </Link>
 
-        <SearchModalCompnent isScrolled={isScrolled} />
+        <SearchModalComponent isScrolled={isScrolled} />
 
 
         <UserNav />

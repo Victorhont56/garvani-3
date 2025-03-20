@@ -1,10 +1,8 @@
 'use client'
 import { Suspense } from "react";
-import { MapFilterItems } from "./components/MapFilterItems";
-import { SkeltonCard } from "./components/SkeletonCard";
-import { NoItems } from "./components/NoItem";
-import { ListingCard } from "./components/ListingCard";
-import { unstable_noStore as noStore } from "next/cache";
+import { SkeltonCard } from "../components/SkeletonCard";
+import { NoItems } from "../components/NoItem";
+import { ListingCard } from "../components/ListingCard";
 import { useAuth } from "@clerk/nextjs";
 import { useState, useEffect } from "react";
 
@@ -13,7 +11,10 @@ export default function Home({
 }: {
   searchParams?: {
     filter?: string;
-    country?: string;
+    state?: string;
+    lga?: string;
+    mode?: string;
+    type?: string;
     guest?: string;
     room?: string;
     bathroom?: string;
@@ -21,8 +22,6 @@ export default function Home({
 }) {
   return (
     <div className="container mx-auto px-5 lg:px-10">
-   
-
       <Suspense key={searchParams?.filter} fallback={<SkeletonLoading />}>
         <ShowItems searchParams={searchParams} />
       </Suspense>
@@ -35,7 +34,10 @@ async function ShowItems({
 }: {
   searchParams?: {
     filter?: string;
-    country?: string;
+    state?: string;
+    lga?: string;
+    mode?: string;
+    type?: string;
     guest?: string;
     room?: string;
     bathroom?: string;
@@ -74,7 +76,10 @@ async function ShowItems({
               key={item.id}
               description={item.description as string}
               imagePath={item.photo as string}
-              location={item.country as string}
+              state={item.state as string}
+              lga={item.lga as string}
+              mode={item.mode as string}
+              type={item.type as string}
               price={item.price as number}
               userId={userId}
               favoriteId={item.Favorite[0]?.id}

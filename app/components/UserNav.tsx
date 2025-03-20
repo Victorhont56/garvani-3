@@ -18,7 +18,6 @@ import {
 } from "@clerk/nextjs";
 import Link from "next/link";
 import { createAirbnbHome } from "../actions";
-import { LuCircleUser } from "react-icons/lu";
 import { LuMenu } from "react-icons/lu";
 
 export function UserNav() {
@@ -35,7 +34,6 @@ export function UserNav() {
       <DropdownMenuTrigger>
         <div className="rounded-full border px-2 py-2 lg:px-4 lg:py-2 flex items-center gap-x-3">
           <LuMenu size={20} />
-          <LuCircleUser className="w-6 h-6 lg:w-5 lg:h-5" />
           {/* Use Clerk's UserButton for profile picture */}
           <UserButton />
         </div>
@@ -43,32 +41,37 @@ export function UserNav() {
       <DropdownMenuContent align="end" className="w-[200px]">
         {user ? (
           <>
-            <DropdownMenuItem>
-              <form action={createHomewithId} className="w-full">
+            <DropdownMenuItem className="hover:text-white hover:bg-primary">
+              <form action={createHomewithId} className="w-full ">
                 <button type="submit" className="w-full text-start">
-                  Airbnb your Home
+                  Add a new Listing
                 </button>
               </form>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem className="hover:text-white hover:bg-primary">
+              <Link href="/all-listings" className="w-full">
+                All Listings
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="hover:text-white hover:bg-primary">
               <Link href="/my-homes" className="w-full">
                 My Listings
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem className="hover:text-white hover:bg-primary">
               <Link href="/favorites" className="w-full">
                 My Favorites
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem className="hover:text-white hover:bg-primary">
               <Link href="/reservations" className="w-full">
                 My Reservations
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem >
               <SignOutButton>
-                <Button variant="outline">Logout</Button>
+                <Button variant="outline" className="hover:text-white hover:bg-hover bg-primary text-white">Logout</Button>
               </SignOutButton>
             </DropdownMenuItem>
           </>

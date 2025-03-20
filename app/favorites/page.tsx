@@ -4,22 +4,29 @@ import { redirect } from "next/navigation";
 import { NoItems } from "../components/NoItem";
 import { ListingCard } from "../components/ListingCard";
 import { unstable_noStore as noStore } from "next/cache";
+import { Prisma } from "@prisma/client";
 
-async function getData(userId: string) {
+type FavoriteWithHome = Prisma.FavoriteGetPayload<{
+  include: {
+    Home: {
+      include: {
+        Favorite: true;
+      };
+    };
+  };
+}>;
+
+async function getData(userId: string): Promise<FavoriteWithHome[]> {
   noStore();
+
   const data = await prisma.favorite.findMany({
     where: {
       userId: userId,
     },
-    select: {
+    include: {
       Home: {
-        select: {
-          photo: true,
-          id: true,
+        include: {
           Favorite: true,
-          price: true,
-          country: true,
-          description: true,
         },
       },
     },
@@ -47,20 +54,29 @@ export default async function FavoriteRoute() {
         />
       ) : (
         <div className="grid lg:grid-cols-4 sm:grid-cols-2 md:grid-cols-3 grid-cols-1 gap-8 mt-8">
-          {data.map((item) => (
-            <ListingCard
-              key={item.Home?.id}
-              description={item.Home?.description as string}
-              location={item.Home?.country as string}
-              pathName="/favorites"
-              homeId={item.Home?.id as string}
-              imagePath={item.Home?.photo as string}
-              price={item.Home?.price as number}
-              userId={userId}
-              favoriteId={item.Home?.Favorite[0]?.id as string}
-              isInFavoriteList={!!item.Home?.Favorite.length}
-            />
-          ))}
+         {data.map((item) => {
+          if (!item.Home) return null; // ⬅️ Early return if Home is null
+
+        return (
+          <ListingCard
+            key={item.Home.id}
+            description={item.Home.description || ""}
+            state={item.Home.state || ""}
+            lga={item.Home.lga || ""}
+            mode={item.Home.mode || ""}
+            type={item.Home.type || ""}
+            pathName="/favorites"
+            homeId={item.Home.id}
+            imagePath={item.Home.photo || ""}
+            price={item.Home.price || 0}
+            userId={userId}
+            favoriteId={item.Home.Favorite[0]?.id || ""}
+            isInFavoriteList={(item.Home.Favorite.length || 0) > 0}
+          />
+        );
+      })}
+
+
         </div>
       )}
     </section>

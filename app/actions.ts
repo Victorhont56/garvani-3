@@ -17,6 +17,14 @@ export async function createAirbnbHome({ userId }: { userId: string }) {
   });
 
   if (data === null) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+    
+    if (!user) {
+      throw new Error("User not found. Cannot create Home.");
+    }
+     
     const data = await prisma.home.create({
       data: {
         userId: userId,
@@ -26,22 +34,19 @@ export async function createAirbnbHome({ userId }: { userId: string }) {
     return redirect(`/create/${data.id}/structure`);
   } else if (
     !data.addedCategory &&
-    !data.addedDescription &&
-    !data.addedLoaction
+    !data.addedDescription
   ) {
     return redirect(`/create/${data.id}/structure`);
   } else if (data.addedCategory && !data.addedDescription) {
     return redirect(`/create/${data.id}/description`);
   } else if (
     data.addedCategory &&
-    data.addedDescription &&
-    !data.addedLoaction
+    data.addedDescription
   ) {
     return redirect(`/create/${data.id}/address`);
   } else if (
     data.addedCategory &&
-    data.addedDescription &&
-    data.addedLoaction
+    data.addedDescription
   ) {
     const data = await prisma.home.create({
       data: {
@@ -70,15 +75,19 @@ export async function createCategoryPage(formData: FormData) {
 }
 
 export async function CreateDescription(formData: FormData) {
+  const homeId = formData.get("homeId") as string;
   const title = formData.get("title") as string;
   const description = formData.get("description") as string;
-  const price = formData.get("price");
+  const price = formData.get("price") as string;
   const imageFile = formData.get("image") as File;
-  const homeId = formData.get("homeId") as string;
-
-  const guestNumber = formData.get("guest") as string;
-  const roomNumber = formData.get("room") as string;
-  const bathroomsNumber = formData.get("bathroom") as string;
+  const state = formData.get("state") as string;
+  const lga = formData.get("lga") as string;
+  const mode = formData.get("mode") as string;
+  const type = formData.get("type") as string;
+  const livingroomNumber = formData.get("livingroom") as string;
+  const bedroomNumber = formData.get("bedroom") as string;
+  const bathroomNumber = formData.get("bathroom") as string;
+  
 
   const { data: imageData } = await supabase.storage
     .from("images")
@@ -94,11 +103,15 @@ export async function CreateDescription(formData: FormData) {
     data: {
       title: title,
       description: description,
-      price: Number(price),
-      bedrooms: roomNumber,
-      bathrooms: bathroomsNumber,
-      guests: guestNumber,
+      bedrooms: bedroomNumber,
+      bathrooms: bathroomNumber,
+      livingrooms: livingroomNumber,
+      state: state,
+      lga: lga,
+      mode: mode,
+      type: type,
       photo: imageData?.path,
+      price: Number(price),
       addedDescription: true,
     },
   });
@@ -106,21 +119,6 @@ export async function CreateDescription(formData: FormData) {
   return redirect(`/create/${homeId}/address`);
 }
 
-export async function createLocation(formData: FormData) {
-  const homeId = formData.get("homeId") as string;
-  const countryValue = formData.get("countryValue") as string;
-  const data = await prisma.home.update({
-    where: {
-      id: homeId,
-    },
-    data: {
-      addedLoaction: true,
-      country: countryValue,
-    },
-  });
-
-  return redirect("/");
-}
 
 export async function addToFavorite(formData: FormData) {
   const homeId = formData.get("homeId") as string;
