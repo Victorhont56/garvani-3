@@ -1,9 +1,10 @@
 "use client";
-import React, { useEffect } from 'react';
+
+import React, { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import useListModal from "./useListModal";
 import Modal from "./Modal";
 import Counter from "./CounterTwo";
@@ -14,9 +15,7 @@ import Heading from "./Heading";
 import { Input } from "@/components/ui/input";
 import nigerianStatesWithLga from "./NigerianStatesWithLga"; // Import the states and LGAs data
 import { useUser } from "@clerk/nextjs"; // Import Clerk's useUser hook
-import {createAirbnbHome, CreateDescription} from "../actions"; // Import server actions
-
-
+import { createAirbnbHome, CreateDescription } from "../actions"; // Import server actions
 
 enum STEPS {
   CATEGORY = 0,
@@ -31,19 +30,12 @@ enum STEPS {
 }
 
 const ListModal = () => {
-
   const router = useRouter();
   const listModal = useListModal();
   const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState(STEPS.CATEGORY);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null); // State for the selected file
   const { user } = useUser(); // Get the authenticated user from Clerk
-
-  
-  useEffect(() => {
-    console.log("Modal state:", listModal.onOpen);
-  },  [listModal.onOpen]);
-
-
 
   const {
     register,
@@ -129,7 +121,11 @@ const ListModal = () => {
       formData.append("livingroom", data.livingroomCount.toString());
       formData.append("bedroom", data.bedroomCount.toString());
       formData.append("bathroom", data.bathroomCount.toString());
-      formData.append("image", data.imageSrc); // Ensure imageSrc is a File object
+
+      // Append the selected file if it exists
+      if (selectedFile) {
+        formData.append("image", selectedFile);
+      }
 
       // Call the CreateDescription server action
       await CreateDescription(formData);
@@ -161,6 +157,15 @@ const ListModal = () => {
 
     return "Back";
   }, [step]);
+
+  // Handle file selection
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      setCustomValue("imageSrc", file.name); // Update the form value
+    }
+  };
 
   let bodyContent = (
     <div className="flex flex-col gap-8">
@@ -222,10 +227,10 @@ const ListModal = () => {
           onChange={(e) => setCustomValue("lga", e.target.value)}
         >
           <option value="">Select an LGA</option>
-             {nigerianStatesWithLga[state as keyof typeof nigerianStatesWithLga]?.map((lga) => (
-          <option key={lga} value={lga}>
-            {lga}
-          </option>
+          {nigerianStatesWithLga[state as keyof typeof nigerianStatesWithLga]?.map((lga) => (
+            <option key={lga} value={lga}>
+              {lga}
+            </option>
           ))}
         </select>
       </div>
@@ -271,9 +276,9 @@ const ListModal = () => {
           subtitle="Show guests what your place looks like!"
         />
         <Input
-          value={imageSrc}
-          name="image" type="file" required 
-          onChange={(value) => setCustomValue("imageSrc", value)}
+          type="file"
+          onChange={handleFileChange}
+          disabled={isLoading}
         />
       </div>
     );
