@@ -1,4 +1,4 @@
-"use client"; // Mark as a Client Component
+"use client";
 
 import {
   DropdownMenu,
@@ -14,40 +14,57 @@ import {
   SignOutButton,
   SignUpButton,
   UserButton,
-  useUser, // Import useUser from Clerk
+  useUser,
 } from "@clerk/nextjs";
 import Link from "next/link";
 import { createAirbnbHome } from "../actions";
 import { LuMenu } from "react-icons/lu";
+import { useCallback } from "react";
+import { useRouter } from "next/navigation";
+import useListModal from "./useListModal";
+
+
+
 
 export function UserNav() {
-  // Use Clerk's useUser hook to get the authenticated user
   const { user } = useUser();
+  const router = useRouter();
+  const listModal = useListModal();
 
-  // Bind the createAirbnbHome action with the userId
-  const createHomewithId = createAirbnbHome.bind(null, {
-    userId: user?.id as string, // Use optional chaining to safely access user.id
-  });
+
+
+
+  const handleClick = useCallback(async () => {
+    if (!user) return;
+
+    try {
+      // Call your server action and await the new home ID
+      const homeId = await createAirbnbHome({ userId: user.id });
+
+      // Navigate to the DescriptionPage for the new listing
+      router.push(`/create/${homeId}/description`);
+    } catch (error) {
+      console.error("Failed to create home:", error);
+    }
+  }, [user, router]);
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
         <div className="rounded-full border px-2 py-2 lg:px-4 lg:py-2 flex items-center gap-x-3">
           <LuMenu size={20} />
-          {/* Use Clerk's UserButton for profile picture */}
           <UserButton />
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[200px]">
         {user ? (
           <>
-            <DropdownMenuItem className="hover:text-white hover:bg-primary">
-              <form action={createHomewithId} className="w-full ">
-                <button type="submit" className="w-full text-start">
-                  Add a new Listing
-                </button>
-              </form>
+            <DropdownMenuItem className="hover:text-white hover:bg-primary"  onClick={listModal.onOpen}>
+              <button type="button" className="w-full text-start">
+                Add a new Listing
+              </button>
             </DropdownMenuItem>
+
             <DropdownMenuItem className="hover:text-white hover:bg-primary">
               <Link href="/all-listings" className="w-full">
                 All Listings
@@ -69,9 +86,11 @@ export function UserNav() {
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem >
+            <DropdownMenuItem>
               <SignOutButton>
-                <Button variant="outline" className="hover:text-white hover:bg-hover bg-primary text-white">Logout</Button>
+                <Button variant="outline" className="hover:text-white hover:bg-hover bg-primary text-white">
+                  Logout
+                </Button>
               </SignOutButton>
             </DropdownMenuItem>
           </>
