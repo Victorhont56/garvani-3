@@ -59,7 +59,10 @@ export function UserNav() {
       <DropdownMenuContent align="end" className="w-[200px]">
         {user ? (
           <>
-            <DropdownMenuItem className="hover:text-white hover:bg-primary"  onClick={listModal.onOpen}>
+            <DropdownMenuItem className="hover:text-white hover:bg-primary"  onClick={() => {
+                              console.log("Opening modal");
+                              listModal.onOpen();
+                            }}>
               <button type="button" className="w-full text-start">
                 Add a new Listing
               </button>

@@ -1,8 +1,7 @@
 "use client";
-import React from 'react';
+import React, { useEffect } from 'react';
 import { toast } from "react-hot-toast";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
-import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import useListModal from "./useListModal";
@@ -32,11 +31,19 @@ enum STEPS {
 }
 
 const ListModal = () => {
+
   const router = useRouter();
-  const rentModal = useListModal();
+  const listModal = useListModal();
   const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState(STEPS.CATEGORY);
   const { user } = useUser(); // Get the authenticated user from Clerk
+
+  
+  useEffect(() => {
+    console.log("Modal state:", listModal.onOpen);
+  },  [listModal.onOpen]);
+
+
 
   const {
     register,
@@ -131,7 +138,7 @@ const ListModal = () => {
       router.refresh();
       reset();
       setStep(STEPS.CATEGORY);
-      rentModal.onClose();
+      listModal.onClose();
     } catch (error) {
       toast.error("Something went wrong.");
     } finally {
@@ -323,13 +330,13 @@ const ListModal = () => {
   return (
     <Modal
       disabled={isLoading}
-      isOpen={rentModal.isOpen}
+      isOpen={listModal.isOpen}
       title="Welcome to Garvani"
       actionLabel={actionLabel}
       onSubmit={handleSubmit(onSubmit)}
       secondaryActionLabel={secondaryActionLabel}
       secondaryAction={step === STEPS.CATEGORY ? undefined : onBack}
-      onClose={rentModal.onClose}
+      onClose={listModal.onClose}
       body={bodyContent}
     />
   );
