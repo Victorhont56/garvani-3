@@ -5,6 +5,7 @@ import "../globals.css";
 import { Navbar } from "../components/Navbar";
 import HeroSection from "../components/Hero";
 import Footer from "../components/Footer";
+import ListModal from "../components/ListModal";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,6 +25,7 @@ export default function SiteLayout({
         <body className={`${inter.className} flex flex-col min-h-screen`}>
           <Navbar />
           <HeroSection />
+          <ListModal />
           <main className="flex-grow">{children}</main>
           <Footer />
         </body>

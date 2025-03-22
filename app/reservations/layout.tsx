@@ -4,6 +4,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import "../globals.css";
 import Footer from "../components/Footer";
 import { NavbarTwo } from "../components/NavbarTwo";
+import ListModal from "../components/ListModal";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,6 +23,7 @@ export default function SiteLayout({
       <html lang="en">
         <body className={`${inter.className} flex flex-col min-h-screen`}>
           <NavbarTwo />
+          <ListModal />
           <main className="flex-grow mt-[150px]">{children}</main>
           <Footer />
         </body>

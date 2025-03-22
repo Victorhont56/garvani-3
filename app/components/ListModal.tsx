@@ -272,6 +272,7 @@ const ListModal = () => {
         />
         <Input
           value={imageSrc}
+          name="image" type="file" required 
           onChange={(value) => setCustomValue("imageSrc", value)}
         />
       </div>

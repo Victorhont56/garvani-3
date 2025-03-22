@@ -67,7 +67,6 @@ export function UserNav() {
                 Add a new Listing
               </button>
             </DropdownMenuItem>
-
             <DropdownMenuItem className="hover:text-white hover:bg-primary">
               <Link href="/all-listings" className="w-full">
                 All Listings
