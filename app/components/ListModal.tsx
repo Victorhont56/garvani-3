@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { useMemo } from "react";
+import axios from "axios"; // Import axios
 import useListModal from "./useListModal";
 import Modal from "./Modal";
 import Counter from "./CounterTwo";
@@ -13,9 +14,8 @@ import { categoryItems } from "./MapFilterItems";
 import InputTwo from "./InputTwo";
 import Heading from "./Heading";
 import { Input } from "@/components/ui/input";
-import nigerianStatesWithLga from "./NigerianStatesWithLga"; // Import the states and LGAs data
-import { useUser } from "@clerk/nextjs"; // Import Clerk's useUser hook
-import { createAirbnbHome, CreateDescription } from "../actions"; // Import server actions
+import nigerianStatesWithLga from "./NigerianStatesWithLga";
+import { useUser } from "@clerk/nextjs";
 
 enum STEPS {
   CATEGORY = 0,
@@ -34,8 +34,8 @@ const ListModal = () => {
   const listModal = useListModal();
   const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState(STEPS.CATEGORY);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null); // State for the selected file
-  const { user } = useUser(); // Get the authenticated user from Clerk
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const { user } = useUser();
 
   const {
     register,
@@ -58,19 +58,15 @@ const ListModal = () => {
       price: 1,
       title: "",
       description: "",
-      userId: user?.id, // Add userId to the form data
+      userId: user?.id,
     },
   });
 
   const state = watch("state");
-  const lga = watch("lga");
-  const mode = watch("mode");
-  const type = watch("type");
   const category = watch("category");
   const livingroomCount = watch("livingroomCount");
   const bedroomCount = watch("bedroomCount");
   const bathroomCount = watch("bathroomCount");
-  const imageSrc = watch("imageSrc");
 
   const setCustomValue = (id: string, value: any) => {
     setValue(id, value, {
@@ -93,7 +89,6 @@ const ListModal = () => {
       return onNext();
     }
 
-    // Ensure the user is authenticated
     if (!user) {
       toast.error("You must be logged in to create a listing.");
       return;
@@ -101,52 +96,55 @@ const ListModal = () => {
 
     // Add the userId to the form data
     data.userId = user.id;
-
     setIsLoading(true);
 
-    try {
-      // Create the home and get the homeId
-      const homeId = await createAirbnbHome({ userId: user.id });
+    // Prepare form data
+    const formData = new FormData();
+    formData.append("title", data.title);
+    formData.append("description", data.description);
+    formData.append("price", data.price.toString());
+    formData.append("state", data.state);
+    formData.append("lga", data.lga);
+    formData.append("mode", data.mode);
+    formData.append("type", data.type);
+    formData.append("livingroom", data.livingroomCount.toString());
+    formData.append("bedroom", data.bedroomCount.toString());
+    formData.append("bathroom", data.bathroomCount.toString());
+    formData.append("userId", data.userId);
 
-      // Update the home with additional details
-      const formData = new FormData();
-      formData.append("homeId", String(homeId));
-      formData.append("title", data.title);
-      formData.append("description", data.description);
-      formData.append("price", data.price.toString());
-      formData.append("state", data.state);
-      formData.append("lga", data.lga);
-      formData.append("mode", data.mode);
-      formData.append("type", data.type);
-      formData.append("livingroom", data.livingroomCount.toString());
-      formData.append("bedroom", data.bedroomCount.toString());
-      formData.append("bathroom", data.bathroomCount.toString());
-
-      // Append the selected file if it exists
-      if (selectedFile) {
-        formData.append("image", selectedFile);
-      }
-
-      // Call the CreateDescription server action
-      await CreateDescription(formData);
-
-      toast.success("Listing created!");
-      router.refresh();
-      reset();
-      setStep(STEPS.CATEGORY);
-      listModal.onClose();
-    } catch (error) {
-      toast.error("Something went wrong.");
-    } finally {
-      setIsLoading(false);
+    // Append the selected file if it exists
+    if (selectedFile) {
+      formData.append("image", selectedFile);
     }
+
+    // Send form data to the API endpoint
+    axios
+      .post("/api/listings", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then(() => {
+        toast.success("Listing created!");
+        router.refresh();
+        reset();
+        setSelectedFile(null); // Clear the file input state
+        setStep(STEPS.CATEGORY);
+        listModal.onClose();
+      })
+      .catch((error) => {
+        console.error("Error creating listing:", error);
+        toast.error("Something went wrong.");
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
 
   const actionLabel = useMemo(() => {
     if (step === STEPS.PRICE) {
       return "Create";
     }
-
     return "Next";
   }, [step]);
 
@@ -154,7 +152,6 @@ const ListModal = () => {
     if (step === STEPS.CATEGORY) {
       return undefined;
     }
-
     return "Back";
   }, [step]);
 
@@ -163,9 +160,16 @@ const ListModal = () => {
     const file = event.target.files?.[0];
     if (file) {
       setSelectedFile(file);
-      setCustomValue("imageSrc", file.name); // Update the form value
+      setCustomValue("imageSrc", file.name);
     }
   };
+
+  // Pre-fill the file input when navigating back
+  useEffect(() => {
+    if (selectedFile) {
+      setCustomValue("imageSrc", selectedFile.name);
+    }
+  }, [selectedFile]);
 
   let bodyContent = (
     <div className="flex flex-col gap-8">
@@ -280,6 +284,9 @@ const ListModal = () => {
           onChange={handleFileChange}
           disabled={isLoading}
         />
+        {selectedFile && (
+          <p className="text-sm text-gray-500">Selected file: {selectedFile.name}</p>
+        )}
       </div>
     );
   }

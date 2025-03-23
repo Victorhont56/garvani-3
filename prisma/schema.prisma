@@ -22,7 +22,6 @@ model User {
 
 model Home {
   id String @id @default(uuid())
-
   title        String?
   description  String?
   bedrooms     String?
@@ -37,10 +36,8 @@ model Home {
   categoryName String?
   Favorite     Favorite[]
   Reservation  Reservation[]
-
   addedCategory    Boolean @default(false)
   addedDescription Boolean @default(false)
-
   createdAT DateTime @default(now())
   User      User @relation(fields: [userId], references: [id]) // Made required
   userId    String // Made required
