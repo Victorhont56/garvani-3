@@ -23,16 +23,10 @@ import { useCallback } from "react";
 import { useRouter } from "next/navigation";
 import useListModal from "./useListModal";
 
-
-
-
 export function UserNav() {
   const { user } = useUser();
   const router = useRouter();
   const listModal = useListModal();
-
-
-
 
   const handleClick = useCallback(async () => {
     if (!user) return;
@@ -59,10 +53,13 @@ export function UserNav() {
       <DropdownMenuContent align="end" className="w-[200px]">
         {user ? (
           <>
-            <DropdownMenuItem className="hover:text-white hover:bg-primary"  onClick={() => {
-                              console.log("Opening modal");
-                              listModal.onOpen();
-                            }}>
+            <DropdownMenuItem
+              className="hover:text-white hover:bg-primary"
+              onClick={() => {
+                console.log("Opening modal");
+                listModal.onOpen();
+              }}
+            >
               <button type="button" className="w-full text-start">
                 Add a new Listing
               </button>
@@ -90,7 +87,10 @@ export function UserNav() {
             <DropdownMenuSeparator />
             <DropdownMenuItem>
               <SignOutButton>
-                <Button variant="outline" className="hover:text-white hover:bg-hover bg-primary text-white">
+                <Button
+                  variant="outline"
+                  className="hover:text-white hover:bg-hover bg-primary text-white"
+                >
                   Logout
                 </Button>
               </SignOutButton>
@@ -99,15 +99,25 @@ export function UserNav() {
         ) : (
           <>
             <DropdownMenuItem>
-              <SignedOut>
-                <SignInButton />
-              </SignedOut>
+              <SignInButton mode="modal">
+                <Button
+                  variant="outline"
+                  className="hover:text-white hover:bg-hover bg-primary text-white w-full"
+                >
+                  Sign In
+                </Button>
+              </SignInButton>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <SignedOut>
-                <SignUpButton />
-              </SignedOut>
+              <SignUpButton mode="modal">
+                <Button
+                  variant="outline"
+                  className="hover:text-white hover:bg-hover bg-primary text-white w-full"
+                >
+                  Sign Up
+                </Button>
+              </SignUpButton>
             </DropdownMenuItem>
           </>
         )}

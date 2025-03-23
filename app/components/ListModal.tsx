@@ -15,7 +15,7 @@ import Heading from "./Heading";
 import { Input } from "@/components/ui/input";
 import nigerianStatesWithLga from "./NigerianStatesWithLga"; // Import the states and LGAs data
 import { useUser } from "@clerk/nextjs"; // Import Clerk's useUser hook
-import { createAirbnbHome, CreateDescription } from "../actions"; // Import server actions
+import axios from "axios"; // Import Axios
 
 enum STEPS {
   CATEGORY = 0,
@@ -105,37 +105,44 @@ const ListModal = () => {
     setIsLoading(true);
 
     try {
-      // Create the home and get the homeId
-      const homeId = await createAirbnbHome({ userId: user.id });
-
-      // Update the home with additional details
+      // Create FormData for file upload
       const formData = new FormData();
-      formData.append("homeId", String(homeId));
+      formData.append("userId", data.userId);
+      formData.append("category", data.category);
+      formData.append("livingroomCount", data.livingroomCount.toString());
+      formData.append("bedroomCount", data.bedroomCount.toString());
+      formData.append("bathroomCount", data.bathroomCount.toString());
+      formData.append("mode", data.mode);
+      formData.append("type", data.type);
+      formData.append("state", data.state);
+      formData.append("lga", data.lga);
       formData.append("title", data.title);
       formData.append("description", data.description);
       formData.append("price", data.price.toString());
-      formData.append("state", data.state);
-      formData.append("lga", data.lga);
-      formData.append("mode", data.mode);
-      formData.append("type", data.type);
-      formData.append("livingroom", data.livingroomCount.toString());
-      formData.append("bedroom", data.bedroomCount.toString());
-      formData.append("bathroom", data.bathroomCount.toString());
 
       // Append the selected file if it exists
       if (selectedFile) {
         formData.append("image", selectedFile);
       }
 
-      // Call the CreateDescription server action
-      await CreateDescription(formData);
+      // Send the form data to the backend using Axios
+      const response = await axios.post("/api/listings", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
-      toast.success("Listing created!");
-      router.refresh();
-      reset();
-      setStep(STEPS.CATEGORY);
-      listModal.onClose();
+      if (response.status === 201) {
+        toast.success("Listing created!");
+        router.refresh();
+        reset();
+        setStep(STEPS.CATEGORY);
+        listModal.onClose();
+      } else {
+        toast.error("Something went wrong.");
+      }
     } catch (error) {
+      console.error("Error creating listing:", error);
       toast.error("Something went wrong.");
     } finally {
       setIsLoading(false);

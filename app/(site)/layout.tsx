@@ -6,6 +6,7 @@ import { Navbar } from "../components/Navbar";
 import HeroSection from "../components/Hero";
 import Footer from "../components/Footer";
 import ListModal from "../components/ListModal";
+import ClientOnly from "../components/ClientOnly";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,9 +24,11 @@ export default function SiteLayout({
     <ClerkProvider>
       <html lang="en">
         <body className={`${inter.className} flex flex-col min-h-screen`}>
-          <Navbar />
-          <HeroSection />
-          <ListModal />
+          <ClientOnly >
+            <Navbar />
+            <HeroSection />
+            <ListModal />
+          </ClientOnly>  
           <main className="flex-grow">{children}</main>
           <Footer />
         </body>
