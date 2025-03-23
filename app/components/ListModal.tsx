@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import nigerianStatesWithLga from "./NigerianStatesWithLga"; // Import the states and LGAs data
 import { useUser } from "@clerk/nextjs"; // Import Clerk's useUser hook
 import axios from "axios"; // Import Axios
+import SuccessModal from "./SuccessModal"; // Import the new SuccessModal component
 
 enum STEPS {
   CATEGORY = 0,
@@ -35,6 +36,7 @@ const ListModal = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState(STEPS.CATEGORY);
   const [selectedFile, setSelectedFile] = useState<File | null>(null); // State for the selected file
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false); // State for success modal
   const { user } = useUser(); // Get the authenticated user from Clerk
 
   const {
@@ -133,11 +135,18 @@ const ListModal = () => {
       });
 
       if (response.status === 201) {
-        toast.success("Listing created!");
-        router.refresh();
+        // Show the success modal
+        setIsSuccessModalOpen(true);
+
+        // Reset the form and close the listing modal
         reset();
         setStep(STEPS.CATEGORY);
         listModal.onClose();
+
+        // Redirect to "/my-homes" after 3 seconds
+        setTimeout(() => {
+          router.push("/my-homes");
+        }, 3000);
       } else {
         toast.error("Something went wrong.");
       }
@@ -341,17 +350,25 @@ const ListModal = () => {
   }
 
   return (
-    <Modal
-      disabled={isLoading}
-      isOpen={listModal.isOpen}
-      title="Welcome to Garvani"
-      actionLabel={actionLabel}
-      onSubmit={handleSubmit(onSubmit)}
-      secondaryActionLabel={secondaryActionLabel}
-      secondaryAction={step === STEPS.CATEGORY ? undefined : onBack}
-      onClose={listModal.onClose}
-      body={bodyContent}
-    />
+    <>
+      <Modal
+        disabled={isLoading}
+        isOpen={listModal.isOpen}
+        title="Welcome to Garvani"
+        actionLabel={actionLabel}
+        onSubmit={handleSubmit(onSubmit)}
+        secondaryActionLabel={secondaryActionLabel}
+        secondaryAction={step === STEPS.CATEGORY ? undefined : onBack}
+        onClose={listModal.onClose}
+        body={bodyContent}
+      />
+
+      {/* Success Modal */}
+      <SuccessModal
+        isOpen={isSuccessModalOpen}
+        onClose={() => setIsSuccessModalOpen(false)}
+      />
+    </>
   );
 };
 
