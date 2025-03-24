@@ -5,11 +5,11 @@ export default function HeroSection() {
     return (
       <div
         className="relative bg-cover bg-center h-screen"
-        style={{ backgroundImage: "url('/images/hero.jpeg')" }}
+        style={{ backgroundImage: "url('/images/hero-2.png')" }}
       >
         {/* Overlay */}
-        <div className="absolute inset-0 bg-black bg-opacity-20 flex flex-col justify-center items-center text-center px-4">
-          <div className='mt-40'>  
+        <div className="absolute inset-0 bg-black bg-opacity-40 flex flex-col justify-center items-center text-center px-4">
+          <div className='mt-[1px]'>  
               <h4 className="text-white text-lg">
                 Simple and Transparent Real Estate Platform
               </h4>

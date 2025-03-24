@@ -5,10 +5,9 @@ import { clerkClient } from "@clerk/clerk-sdk-node";
 import path from "path";
 import fs from "fs";
 
-
-// GET request handler (existing code)
+// GET request handler
 export async function GET(request: NextRequest) {
-  const { userId } = getAuth(request); // ✅ Now works without .from()
+  const { userId } = getAuth(request);
 
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -30,7 +29,7 @@ export async function GET(request: NextRequest) {
     });
   }
 
-  const { searchParams } = request.nextUrl; // ✅ Use request.nextUrl instead of new URL()
+  const { searchParams } = request.nextUrl;
   const filter = searchParams.get("filter") ?? undefined;
   const mode = searchParams.get("mode") ?? undefined;
   const type = searchParams.get("type") ?? undefined;
@@ -59,6 +58,10 @@ export async function GET(request: NextRequest) {
       id: true,
       price: true,
       description: true,
+      state: true, // Include state
+      lga: true,   // Include lga
+      mode: true,  // Include mode
+      type: true,
       Favorite: {
         where: {
           userId: queryUserId,
@@ -70,7 +73,7 @@ export async function GET(request: NextRequest) {
   return NextResponse.json(data);
 }
 
-// POST request handler (new code)
+// POST request handler
 export async function POST(request: NextRequest) {
   const { userId } = getAuth(request);
 
@@ -122,8 +125,8 @@ export async function POST(request: NextRequest) {
       data: {
         userId: userId,
         categoryName: category,
-        livingrooms: livingroomCount.toString(), // Convert to string
-        bedrooms: bedroomCount.toString(), // Convert to string
+        livingrooms: livingroomCount.toString(),
+        bedrooms: bedroomCount.toString(),
         bathrooms: bathroomCount.toString(),
         mode: mode,
         type: type,
