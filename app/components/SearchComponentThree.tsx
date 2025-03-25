@@ -34,15 +34,12 @@ export function SearchModalComponentThree() {
   }
 
   return (
-    <div className="rounded-full py-2 px-5 border-0 sm:border flex items-center cursor-pointer">
+    <div className="rounded-full h-[30px] py-2 px-5 border-[2px] flex items-center cursor-pointer">
 
       {/* Search Icon - Visible Only on Medium and Larger */}
       <div className="sm:flex ml-14">
         <Dialog>
           <DialogTrigger asChild>
-            <Search
-              className="bg-primary text-white p-1 h-8 hover:bg-hover hover:text-white w-8 rounded-full" // Always black text
-            />
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <form className="gap-4 flex flex-col">

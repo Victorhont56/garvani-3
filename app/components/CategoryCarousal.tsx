@@ -14,7 +14,7 @@ export default function CategoryCarousal({
   const categories = categoryItems.map((item) => item.label);
 
   return (
-    <div className="flex overflow-x-auto gap-4 py-4 mb-8">
+    <div className="flex overflow-x-auto gap-4 py-4 mb-[5px]">
       {categories.map((category) => (
         <button
           key={category}
