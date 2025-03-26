@@ -16,8 +16,8 @@ interface Favorite {
 // Define the type for the Home object
 interface Home {
   id: string;
+  title: string | null;
   photo: string | null;
-  description: string | null;
   price: number | null;
   state: string | null;
   lga: string | null;
@@ -40,7 +40,7 @@ async function getData(userId: string): Promise<Home[]> {
     select: {
       id: true,
       photo: true,
-      description: true,
+      title: true,
       price: true,
       state: true,
       lga: true,
@@ -85,16 +85,15 @@ export default async function MyHomes() {
             <ListingCard
               key={item.id}
               imagePath={item.photo ?? ""} // Handle null case
-              homeId={item.id}
-              price={item.price ?? 0} // Handle null case
-              description={item.description ?? ""} // Handle null case
+              title={item.title ?? ""}
               state={item.state ?? ""} // Handle null case
               lga={item.lga ?? ""} // Handle null case
               mode={item.mode ?? ""} // Handle null case
-              type={item.type ?? ""} // Handle null case
+              price={item.price ?? 0} // Handle null case
               userId={userId}
               pathName="/my-homes"
               favoriteId={item.Favorite[0]?.id}
+              homeId={item.id}
               isInFavoriteList={item.Favorite.length > 0}
             />
           ))}

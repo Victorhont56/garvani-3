@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Home" ALTER COLUMN "images" DROP DEFAULT;

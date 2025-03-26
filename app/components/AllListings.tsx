@@ -10,7 +10,7 @@ import { FaPlus } from "react-icons/fa6";
 interface Listing {
   id: string;
   photo: string;
-  description: string;
+  title: string;
   state: string;
   lga: string;
   mode: string;
@@ -105,11 +105,10 @@ export default function AllListings() {
             <ListingCard
               key={listing.id}
               imagePath={listing.photo}
-              description={listing.description}
+              title={listing.title}
               state={listing.state}
               lga={listing.lga}
               mode={listing.mode}
-              type={listing.type}
               price={listing.price}
               userId={user?.id}
               isInFavoriteList={listing.Favorite.some(

@@ -32,7 +32,8 @@ model Home {
   lga          String?
   mode         String?
   type         String?
-  photo        String?
+  photo        String?       // Primary/main image (kept for backward compatibility)
+  images       String[]      // Array of all image URLs (including the primary image)
   price        Int?
   categoryName String?
   Favorite     Favorite[]
@@ -42,15 +43,15 @@ model Home {
   addedDescription Boolean @default(false)
 
   createdAT DateTime @default(now())
-  User      User @relation(fields: [userId], references: [id]) // Made required
-  userId    String // Made required
+  User      User @relation(fields: [userId], references: [id])
+  userId    String
 }
 
 model Favorite {
   id String @id @default(uuid())
 
-  User   User @relation(fields: [userId], references: [id]) // Made required
-  userId String // Made required
+  User   User @relation(fields: [userId], references: [id])
+  userId String
   Home   Home? @relation(fields: [homeId], references: [id])
   homeId String?
 
@@ -64,8 +65,8 @@ model Reservation {
   endDate   DateTime
   createdAt DateTime @default(now())
 
-  User   User @relation(fields: [userId], references: [id]) // Made required
-  userId String // Made required
+  User   User @relation(fields: [userId], references: [id])
+  userId String
   Home   Home? @relation(fields: [homeId], references: [id])
   homeId String?
 }

@@ -1,3 +1,4 @@
+"use client"
 import Image from "next/image";
 import Link from "next/link";
 import { AddToFavoriteButton, DeleteFromFavoriteButton } from "./SubmitButtons";
@@ -5,11 +6,10 @@ import { DeleteFromFavorite, addToFavorite } from "../actions";
 
 interface iAppProps {
   imagePath: string;
-  description: string;
+  title: string;
   state: string;
   lga: string;
   mode: string;
-  type: string;
   price: number;
   userId: string | null | undefined;
   isInFavoriteList: boolean;
@@ -19,12 +19,11 @@ interface iAppProps {
 }
 
 export function ListingCard({
-  description,
   imagePath,
   state,
   lga,
   mode,
-  type,
+  title,
   price,
   userId,
   favoriteId,
@@ -46,7 +45,7 @@ export function ListingCard({
               </p>
             </div>
             <p className="text-muted-foreground text-sm line-clamp-2">
-              {description}
+              {title}
             </p>
           </div>
 

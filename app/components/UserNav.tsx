@@ -50,7 +50,7 @@ export function UserNav() {
           <UserButton />
         </div>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[200px]">
+      <DropdownMenuContent align="end" className="w-[200px] z-[5000]">
         {user ? (
           <>
             <DropdownMenuItem

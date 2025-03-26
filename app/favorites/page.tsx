@@ -60,11 +60,10 @@ export default async function FavoriteRoute() {
         return (
           <ListingCard
             key={item.Home.id}
-            description={item.Home.description || ""}
             state={item.Home.state || ""}
+            title={item.Home.title || ""}
             lga={item.Home.lga || ""}
             mode={item.Home.mode || ""}
-            type={item.Home.type || ""}
             pathName="/favorites"
             homeId={item.Home.id}
             imagePath={item.Home.photo || ""}
