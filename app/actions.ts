@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import prisma from "./lib/db";
-import { supabase } from "./lib/supabase";
+import { supabase } from "./lib/supabase/supabaseClient";
 import { revalidatePath } from "next/cache";
 
 

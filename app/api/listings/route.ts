@@ -1,6 +1,5 @@
 import { NextResponse, NextRequest } from "next/server";
 import prisma from "@/app/lib/db";
-import { getAuth } from "@clerk/nextjs/server";
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseAdmin = createClient(
@@ -13,10 +12,20 @@ const supabaseAdmin = createClient(
 );
 
 export async function POST(request: NextRequest) {
-  const { userId } = getAuth(request);
-  if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
   try {
+    // Get Supabase session
+    const authHeader = request.headers.get('Authorization');
+    if (!authHeader) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const jwt = authHeader.replace('Bearer ', '');
+    const { data: { user }, error } = await supabaseAdmin.auth.getUser(jwt);
+
+    if (error || !user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const formData = await request.formData();
     
     // Validate required fields
@@ -59,7 +68,7 @@ export async function POST(request: NextRequest) {
     // Create listing in database
     const newListing = await prisma.home.create({
       data: {
-        userId,
+        userId: user.id,
         categoryName: formData.get("category") as string,
         livingrooms: formData.get("livingroomCount")?.toString() || "0",
         bedrooms: formData.get("bedroomCount")?.toString() || "0",

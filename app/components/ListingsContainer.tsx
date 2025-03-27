@@ -3,8 +3,8 @@
 import { SkeltonCard } from "./SkeletonCard";
 import { NoItems } from "./NoItem";
 import { ListingCard } from "./ListingCard";
-import { useAuth } from "@clerk/nextjs";
 import { useState, useEffect } from "react";
+import { supabase } from "@/app/lib/supabase/supabaseClient";
 
 interface Listing {
   id: string;
@@ -33,11 +33,26 @@ export function ListingsContainer({ searchParams }: { searchParams?: SearchParam
   const [data, setData] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { userId } = useAuth();
-  const safeUserId = userId ?? undefined;
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (safeUserId !== undefined) {
+    // Check current session when component mounts
+    const getSession = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUserId(user?.id ?? null);
+    };
+    getSession();
+
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUserId(session?.user?.id ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (userId !== null) { // Changed from undefined check to null check
       const fetchData = async () => {
         try {
           setLoading(true);
@@ -47,8 +62,8 @@ export function ListingsContainer({ searchParams }: { searchParams?: SearchParam
           const params = new URLSearchParams();
           
           // Add userId if it exists
-          if (safeUserId) {
-            params.append('userId', safeUserId);
+          if (userId) {
+            params.append('userId', userId);
           }
           
           // Add other search parameters if they exist
@@ -79,9 +94,7 @@ export function ListingsContainer({ searchParams }: { searchParams?: SearchParam
       
       fetchData();
     }
-  }, [searchParams, safeUserId]);
-
-
+  }, [searchParams, userId]);
 
   if (loading) {
     return (

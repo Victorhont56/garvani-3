@@ -32,7 +32,7 @@ export function Navbar() {
         ${isScrolled ? "text-black" : "text-white"}`}>
 
         <Link href="/" className="flex items-center space-x-2">
-          <Image
+         {/**  <Image
             src={DesktopLogo}
             alt="Desktop Logo"
             className="w-32 hidden lg:block"
@@ -43,7 +43,8 @@ export function Navbar() {
             alt="Mobile Logo"
             className="block lg:hidden w-12"
             priority
-          />
+          /> **/}
+          <div className="text-2xl">Garvani</div>
         </Link>
 
         <SearchModalComponent isScrolled={isScrolled} />

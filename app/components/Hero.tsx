@@ -9,7 +9,7 @@ export default function HeroSection() {
       >
         {/* Overlay */}
         <div className="absolute inset-0 bg-black bg-opacity-40 flex flex-col justify-center items-center text-center px-4">
-          <div className='mt-[1px]'>  
+          <div className=' mt-[200px]'>  
               <h4 className="text-white text-lg">
                 Simple and Transparent Real Estate Platform
               </h4>

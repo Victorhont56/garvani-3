@@ -25,6 +25,7 @@ const Button: React.FC<ButtonProps> = ({
       disabled={disabled}
       onClick={onClick}
       className={`
+        flex
         relative
         disabled:opacity-70
         disabled:cursor-not-allowed
@@ -32,6 +33,10 @@ const Button: React.FC<ButtonProps> = ({
         hover:opacity-80
         transition
         w-full
+        h-[40px]
+        items-center
+        justify-center
+
         ${outline ? "bg-white" : "bg-primary"}
         ${outline ? "border-black" : "border-primary"}
         ${outline ? "text-black" : "text-white"}
@@ -47,7 +52,7 @@ const Button: React.FC<ButtonProps> = ({
           className="
             absolute
             left-4
-            top-3
+            top-[7px]
           "
         />
       )}

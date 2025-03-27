@@ -13,10 +13,10 @@ import { categoryItems } from "./MapFilterItems";
 import InputTwo from "./InputTwo";
 import Heading from "./Heading";
 import nigerianStatesWithLga from "./NigerianStatesWithLga";
-import { useUser } from "@clerk/nextjs";
 import axios from "axios";
 import SuccessModal from "./SuccessModal";
 import { X } from "lucide-react";
+import { supabase } from "@/app/lib/supabase/supabaseClient";
 
 enum STEPS {
   TYPE = 0,
@@ -34,11 +34,27 @@ const ListModal = () => {
   const router = useRouter();
   const listModal = useListModal();
   const [isLoading, setIsLoading] = useState(false);
-  const [step, setStep] = useState(STEPS.TYPE); // Start with TYPE step
+  const [step, setStep] = useState(STEPS.TYPE);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
-  const { user } = useUser();
+  const [userId, setUserId] = useState<string | null>(null);
+
+  // Get current user session
+  useEffect(() => {
+    const getSession = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUserId(user?.id ?? null);
+    };
+
+    getSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUserId(session?.user?.id ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const {
     register,
@@ -54,16 +70,21 @@ const ListModal = () => {
       bedroomCount: 0,
       bathroomCount: 0,
       mode: "Rent",
-      type: "Building", // Default to Building
+      type: "Building",
       state: "",
       lga: "",
       images: [],
       price: 1,
       title: "",
       description: "",
-      userId: user?.id,
+      userId: userId,
     },
   });
+
+  // Update form when userId changes
+  useEffect(() => {
+    setValue("userId", userId);
+  }, [userId, setValue]);
 
   const state = watch("state");
   const mode = watch("mode");
@@ -88,7 +109,6 @@ const ListModal = () => {
   };
 
   const onNext = () => {
-    // Skip category step if property type is Land
     if (step === STEPS.MODE && type === "Land") {
       setStep(STEPS.STATE);
     } else {
@@ -126,45 +146,56 @@ const ListModal = () => {
 
   const onSubmit: SubmitHandler<FieldValues> = async (data) => {
     if (step !== STEPS.PRICE) return onNext();
+    if (!userId) {
+      toast.error("You must be logged in to create a listing");
+      return;
+    }
   
     setIsLoading(true);
   
     try {
-     // In your onSubmit function, ensure all required fields are included:
-        const formData = new FormData();
-        formData.append('title', data.title);
-        formData.append('description', data.description);
-        formData.append('price', data.price.toString());
-        formData.append('type', data.type);
-        formData.append('mode', data.mode);
-        formData.append('state', data.state);
-        formData.append('lga', data.lga);
-        formData.append('userId', user?.id || '');
+      const formData = new FormData();
+      formData.append('title', data.title);
+      formData.append('description', data.description);
+      formData.append('price', data.price.toString());
+      formData.append('type', data.type);
+      formData.append('mode', data.mode);
+      formData.append('state', data.state);
+      formData.append('lga', data.lga);
+      formData.append('userId', userId);
 
-        // For Building type only
-        if (data.type === 'Building') {
-          formData.append('category', data.category);
-          formData.append('bedroomCount', data.bedroomCount.toString());
-          formData.append('livingroomCount', data.livingroomCount.toString());
-        }
+      if (data.type === 'Building') {
+        formData.append('category', data.category);
+        formData.append('bedroomCount', data.bedroomCount.toString());
+        formData.append('livingroomCount', data.livingroomCount.toString());
+      }
 
-        // Always include
-        formData.append('bathroomCount', data.bathroomCount.toString());
+      formData.append('bathroomCount', data.bathroomCount.toString());
 
-        // Add images
-        selectedFiles.forEach((file) => {
-          formData.append('images', file);
-        });
+      selectedFiles.forEach((file) => {
+        formData.append('images', file);
+      });
+
+      // Get session token for authorization
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
 
       const response = await axios.post('/api/listings', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}`
         },
-        transformRequest: (data) => data, // Prevent axios from transforming FormData
+        transformRequest: (data) => data,
       });
   
       if (response.status === 201) {
-        // Success handling
+        setIsSuccessModalOpen(true);
+        reset();
+        setSelectedFiles([]);
+        setPreviewUrls([]);
+        setStep(STEPS.TYPE);
+        listModal.onClose();
+        router.refresh();
       } else {
         throw new Error(response.data?.error || "Unknown error occurred");
       }

@@ -12,7 +12,7 @@ export function NavbarTwo() {
     <nav className="fixed top-0 left-0 w-full z-50 bg-white/60 backdrop-blur-md shadow-md">
       <div className="flex items-center justify-between container mx-auto px-5 lg:px-10 py-4 text-black">
         <Link href="/" className="flex items-center space-x-2">
-          <Image
+           {/**  <Image
             src={DesktopLogo}
             alt="Desktop Logo"
             className="w-32 hidden lg:block"
@@ -23,7 +23,8 @@ export function NavbarTwo() {
             alt="Mobile Logo"
             className="block lg:hidden w-12"
             priority
-          />
+          /> **/}
+          <div className="text-2xl">Garvani</div>
         </Link>
 
         <SearchModalComponentTwo />

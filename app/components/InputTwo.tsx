@@ -1,7 +1,9 @@
 "use client";
 
-import { FieldErrors, FieldValues, UseFormRegister } from "react-hook-form";
-import { BiDollar } from "react-icons/bi";
+import { FieldErrors, FieldValues, UseFormRegister, RegisterOptions } from "react-hook-form";
+import { TbCurrencyNaira } from "react-icons/tb";
+import { useState } from "react";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 
 interface InputTwoProps {
   id: string;
@@ -10,8 +12,10 @@ interface InputTwoProps {
   disabled?: boolean;
   formatPrice?: boolean;
   required?: boolean;
+  validate?: (value: any) => true | string;
   register: UseFormRegister<FieldValues>;
-  errors: FieldErrors;
+  errors: FieldErrors<FieldValues>;
+  registerOptions?: RegisterOptions<FieldValues>;
 }
 
 const Input: React.FC<InputTwoProps> = ({
@@ -23,11 +27,15 @@ const Input: React.FC<InputTwoProps> = ({
   register,
   required,
   errors,
+  registerOptions = {},
 }) => {
+  const [showPassword, setShowPassword] = useState(false);
+  const isPasswordField = type === "password";
+
   return (
     <div className="w-full relative">
       {formatPrice && (
-        <BiDollar
+        <TbCurrencyNaira
           size={24}
           className="
             text-neutral-700
@@ -40,14 +48,16 @@ const Input: React.FC<InputTwoProps> = ({
       <input
         id={id}
         disabled={disabled}
-        {...register(id, { required })}
+        {...register(id, { 
+          required,
+          ...registerOptions
+        })}
         placeholder=" "
-        type={type}
+        type={isPasswordField && showPassword ? "text" : type}
         className={`
           peer
           w-full
-          p-4
-          pt-6 
+          p-[10px]
           font-light 
           bg-white 
           border-2
@@ -57,18 +67,28 @@ const Input: React.FC<InputTwoProps> = ({
           disabled:opacity-70
           disabled:cursor-not-allowed
           ${formatPrice ? "pl-9" : "pl-4"}
+          ${isPasswordField ? "pr-10" : ""}
           ${errors[id] ? "border-rose-500" : "border-neutral-300"}
           ${errors[id] ? "focus:border-rose-500" : "focus:border-black"}
         `}
       />
+      {isPasswordField && (
+        <button
+          type="button"
+          className="absolute px-4 right-1 top-1/2 transform -translate-y-1/2 text-neutral-500 hover:text-neutral-700"
+          onClick={() => setShowPassword(!showPassword)}
+        >
+          {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+        </button>
+      )}
       <label
         className={`
           absolute 
-          text-md
+          text-[12px]
           duration-150 
           transform 
           -translate-y-3 
-          top-5 
+          top-[15px] 
           z-10 
           origin-[0] 
           ${formatPrice ? "left-9" : "left-4"}
@@ -81,6 +101,11 @@ const Input: React.FC<InputTwoProps> = ({
       >
         {label}
       </label>
+      {errors[id] && (
+        <p className="mt-1 text-rose-500 text-sm">
+          {errors[id]?.message as string}
+        </p>
+      )}
     </div>
   );
 };
